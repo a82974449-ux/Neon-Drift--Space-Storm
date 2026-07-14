@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Neon Drift: Space Storm</title>
+    <style>
+        body, html { margin: 0; padding: 0; width: 100%; height: 100%; background-color: #050508; font-family: sans-serif; overflow: hidden; }
+
+        /* القائمة الرئيسية */
+        #main-menu {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+            background: radial-gradient(circle, #1a1a2e 0%, #050508 100%);
+            z-index: 100;
+        }
+        h1 { font-size: 3rem; color: #fff; text-shadow: 0 0 10px #0ff, 0 0 20px #0ff; text-align: center; margin-bottom: 40px; }
+        #start-btn {
+            padding: 15px 50px; font-size: 1.5rem; background: transparent; color: #0ff;
+            border: 2px solid #0ff; border-radius: 30px; cursor: pointer; box-shadow: 0 0 15px rgba(0, 255, 255, 0.3);
+        }
+
+        /* واجهة اللعب */
+        #game-interface { display: none; width: 100%; height: 100%; }
+        #score-container { position: absolute; top: 20px; left: 20px; color: #fff; font-size: 1.2rem; z-index: 10; }
+        canvas { display: block; width: 100%; height: 100%; }
+
+        /* زر الإيقاف المؤقت */
+        #pause-btn {
+            position: absolute; top: 70px; right: 20px; font-size: 2rem; /* تم تعديل القيمة هنا لينزل الزر للأسفل */
+            background: transparent; border: none; color: #fff; cursor: pointer; z-index: 10;
+            text-shadow: 0 0 10px #0ff; outline: none;
+        }
+
+        /* القوائم المنبثقة (التوقف والخسارة) */
+        .overlay-menu {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(5, 5, 8, 0.95); z-index: 20;
+            display: none; flex-direction: column; justify-content: center; align-items: center;
+        }
+        .overlay-menu h2 { font-size: 2.5rem; margin-bottom: 20px; }
+        .text-cyan { color: #0ff; text-shadow: 0 0 15px #0ff; }
+        .text-red { color: #ff0055; text-shadow: 0 0 15px #ff0055; }
+        
+        .game-over-stats { color: #fff; font-size: 1.5rem; margin-bottom: 10px; font-weight: bold; }
+        .game-over-highscore { color: #ffcc00; font-size: 1.3rem; margin-bottom: 35px; text-shadow: 0 0 10px #ffcc00; }
+
+        .menu-btn-option {
+            padding: 12px 30px; font-size: 1.2rem; margin: 10px;
+            background: transparent; color: #fff; border: 2px solid #00ffff;
+            border-radius: 20px; cursor: pointer; box-shadow: 0 0 10px rgba(0, 255, 255, 0.4);
+            width: 250px; font-weight: bold;
+        }
+        .menu-btn-exit { border-color: #ff0055; box-shadow: 0 0 10px rgba(255, 0, 85, 0.4); }
+    </style>
+</head>
+<body>
+
+    <div id="main-menu">
+        <h1>Neon Drift:<br>Space Storm</h1>
+        <button id="start-btn" onclick="startGame()">ابدأ التحدي</button>
+    </div>
+
+    <div id="game-interface">
+        <div id="score-container">النقاط: <span id="score">0</span></div>
+        <button id="pause-btn" onclick="togglePause()">⏸️</button>
+        <canvas id="gameCanvas"></canvas>
+
+        <div id="pause-menu" class="overlay-menu">
+            <h2 class="text-cyan">توقف مؤقت</h2>
+            <button class="menu-btn-option" onclick="resumeGame()">متابعة اللعب ▶️</button>
+            <button class="menu-btn-option menu-btn-exit" onclick="returnToMainMenu()">الواجهة الرئيسية 🏠</button>
+        </div>
+
+        <div id="game-over-menu" class="overlay-menu">
+            <h2 id="game-over-title">انتهت اللعبة</h2>
+            <div class="game-over-stats" id="game-over-score">النتيجة: 0</div>
+            <div class="game-over-highscore" id="game-over-highscore-display">🏆 أعلى نتيجة: 0</div>
+            <button class="menu-btn-option" onclick="restartFromGameOver()">إعادة اللعب 🔄</button>
+            <button class="menu-btn-option menu-btn-exit" onclick="returnToMainMenuFromGameOver()">الواجهة الرئيسية 🏠</button>
+        </div>
+    </div>
+
+    <script src="game.js"></script>
+    <script>
+        function startGame() {
+            document.getElementById('main-menu').style.display = 'none';
+            document.getElementById('game-interface').style.display = 'block';
+            if (typeof initGame === 'function') initGame();
+        }
+
+        // دوال الإيقاف المؤقت
+        function togglePause() {
+            if (typeof setPause === 'function') setPause(true);
+            document.getElementById('pause-menu').style.display = 'flex';
+            document.getElementById('pause-btn').style.display = 'none';
+        }
+
+        function resumeGame() {
+            if (typeof setPause === 'function') setPause(false);
+            document.getElementById('pause-menu').style.display = 'none';
+            document.getElementById('pause-btn').style.display = 'block';
+        }
+
+        function returnToMainMenu() {
+            if (typeof resetToMenu === 'function') resetToMenu();
+            document.getElementById('pause-menu').style.display = 'none';
+            document.getElementById('pause-btn').style.display = 'block';
+            document.getElementById('game-interface').style.display = 'none';
+            document.getElementById('main-menu').style.display = 'flex';
+        }
+
+        // دوال نهاية اللعبة (Game Over)
+        function showGameOverMenu(score, highScore, isNewRecord) {
+            const title = document.getElementById('game-over-title');
+            if (isNewRecord) {
+                title.innerText = 'مبروك! رقم قياسي جديد';
+                title.className = 'text-cyan';
+            } else {
+                title.innerText = 'انتهت اللعبة';
+                title.className = 'text-red';
+            }
+            
+            document.getElementById('game-over-score').innerText = 'النتيجة: ' + score;
+            document.getElementById('game-over-highscore-display').innerText = '🏆 أعلى نتيجة: ' + highScore;
+            
+            document.getElementById('pause-btn').style.display = 'none';
+            document.getElementById('game-over-menu').style.display = 'flex';
+        }
+
+        function restartFromGameOver() {
+            document.getElementById('game-over-menu').style.display = 'none';
+            document.getElementById('pause-btn').style.display = 'block';
+            if (typeof initGame === 'function') initGame();
+        }
+
+        function returnToMainMenuFromGameOver() {
+            if (typeof resetToMenu === 'function') resetToMenu();
+            document.getElementById('game-over-menu').style.display = 'none';
+            document.getElementById('pause-btn').style.display = 'block';
+            document.getElementById('game-interface').style.display = 'none';
+            document.getElementById('main-menu').style.display = 'flex';
+        }
+    </script>
+</body>
+</html>

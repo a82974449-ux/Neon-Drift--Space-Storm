@@ -1,0 +1,147 @@
+/* إعادة تعيين الإعدادات الأساسية للهواتف */
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    user-select: none;
+    -webkit-user-select: none;
+    touch-action: none; /* تمنع سحب الشاشة الافتراضي في الهواتف */
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+body, html {
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    background-color: #050508; /* خلفية داكنة جداً للفخامة والتباين */
+    color: #fff;
+}
+
+/* إدارة الشاشات */
+.screen {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    z-index: 10;
+}
+
+.screen.active {
+    display: flex;
+}
+
+/* الشاشة الرئيسية وتأثير الخلفية المتوهجة */
+#main-menu {
+    background: radial-gradient(circle, #0f1026 0%, #050508 100%);
+}
+
+.game-title {
+    font-size: 3rem;
+    font-weight: 900;
+    text-align: center;
+    letter-spacing: 4px;
+    color: #fff;
+    text-shadow: 0 0 10px #00f0ff, 0 0 20px #00f0ff, 0 0 40px #00f0ff;
+    animation: titleGlow 2s infinite alternate;
+    margin-bottom: 50px;
+}
+
+.game-title .subtitle {
+    font-size: 1.5rem;
+    color: #ff007f;
+    text-shadow: 0 0 10px #ff007f, 0 0 20px #ff007f;
+}
+
+/* الأزرار بنمط النيون */
+.menu-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    width: 80%;
+    max-width: 300px;
+}
+
+.neon-btn {
+    background: transparent;
+    border: 2px solid #00f0ff;
+    border-radius: 50px;
+    color: #00f0ff;
+    padding: 15px 30px;
+    font-size: 1.2rem;
+    font-weight: bold;
+    cursor: pointer;
+    box-shadow: 0 0 10px rgba(0, 240, 255, 0.3), inset 0 0 10px rgba(0, 240, 255, 0.3);
+    transition: all 0.3s ease;
+}
+
+.neon-btn.secondary {
+    border-color: #ff007f;
+    color: #ff007f;
+    box-shadow: 0 0 10px rgba(255, 0, 127, 0.3), inset 0 0 10px rgba(255, 0, 127, 0.3);
+}
+
+/* أنيميشن النبض للزر الرئيسي */
+.pulse {
+    animation: buttonPulse 1.5s infinite;
+}
+
+/* شاشة اللعب والـ Canvas */
+#game-screen {
+    justify-content: flex-start;
+}
+
+#gameCanvas {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 1;
+}
+
+/* واجهة العدادات أثناء اللعب */
+.game-header {
+    position: absolute;
+    top: 20px;
+    width: 90%;
+    display: flex;
+    justify-content: space-between;
+    font-size: 1.2rem;
+    font-weight: bold;
+    z-index: 5;
+    text-shadow: 0 0 8px rgba(255, 255, 255, 0.6);
+}
+
+.progress-bar-container {
+    position: absolute;
+    top: 60px;
+    width: 90%;
+    height: 6px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 3px;
+    overflow: hidden;
+    z-index: 5;
+}
+
+.progress-bar {
+    width: 30%; /* سنحركها برمجياً لتعبر عن تقدم اللاعب */
+    height: 100%;
+    background: linear-gradient(90deg, #00f0ff, #ff007f);
+    box-shadow: 0 0 10px #00f0ff;
+    transition: width 0.2s ease;
+}
+
+/* الحركات (Animations) */
+@keyframes titleGlow {
+    from { text-shadow: 0 0 10px #00f0ff, 0 0 20px #00f0ff; }
+    to { text-shadow: 0 0 15px #00f0ff, 0 0 30px #00f0ff, 0 0 50px #00f0ff; }
+}
+
+@keyframes buttonPulse {
+    0% { transform: scale(1); box-shadow: 0 0 10px rgba(0, 240, 255, 0.4); }
+    50% { transform: scale(1.05); box-shadow: 0 0 25px rgba(0, 240, 255, 0.8); }
+    100% { transform: scale(1); box-shadow: 0 0 10px rgba(0, 240, 255, 0.4); }
+}
